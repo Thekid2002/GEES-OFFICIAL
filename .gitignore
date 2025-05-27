@@ -1,0 +1,9 @@
+/venv
+/Gees_Backend/.venv
+/Gees_Backend/models/__pycache__
+/Gees_Backend/__pycache__
+/Gees_Backend/.idea
+/.idea
+Gees_Backend/.DS_Store
+Gees_Frontend/.DS_Store
+.DS_Store

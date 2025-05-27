@@ -1,0 +1,17 @@
+# Dockerfile.test
+FROM golang:1.24.1
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the Go modules files
+COPY go.mod go.sum ./
+
+# Download the Go modules
+RUN go mod download
+
+# Copy the rest of the application code
+COPY . .
+
+# Run tests
+CMD ["sh", "-c", "go test . -fuzz=Fuzz -fuzztime=1m && go test ./controllers -fuzz=Fuzz -fuzztime=1m && go test ./models -fuzz=Fuzz -fuzztime=1m"]

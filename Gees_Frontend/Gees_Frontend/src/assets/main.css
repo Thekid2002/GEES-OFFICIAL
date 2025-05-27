@@ -1,0 +1,17 @@
+@import './base.css';
+
+#app {
+  width: 100vw;
+  margin: 0 auto;
+  height: 100vh;
+  font-weight: normal;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+a, h1 {
+  text-decoration: none;
+  color: hsl(0, 0%, 100%);
+  transition: 0.4s;
+  padding: 3px;
+}

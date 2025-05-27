@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: MySecretUser
+      POSTGRES_PASSWORD: MySecretPassword123
+      POSTGRES_DB: gees_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backup:/backup
+      - ./Gees_Backend/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U MySecretUser -d gees_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  arduino-test:
+    build:
+      context: ./Arduino
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    command: >
+      bash -c '
+        mkdir -p build &&
+        cd build &&
+        cmake .. &&
+        make &&
+        ctest --output-on-failure -V || exit 1
+      '
+
+  go-test:
+    build:
+      context: ./Gees_Backend/
+      dockerfile: ../Gees_Backend/Dockerfile.test
+    working_dir: /app
+    command: >
+      bash -c '
+        go mod tidy &&
+        go test ./... -v || exit 1
+      '
+
+
+volumes:
+  postgres_data:

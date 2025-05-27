@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: MySecretUser
+      POSTGRES_PASSWORD: MySecretPassword123
+      POSTGRES_DB: gees_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backup:/backup
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U MySecretUser -d gees_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  go-app:
+    build: .
+    container_name: my_go_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app/Gees_Backend
+
+  python-app:
+    build:
+      context: ../Python
+      dockerfile: Dockerfile
+    container_name: my_python_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "443:443"
+    volumes:
+      - ../Python:/app
+
+  vue-frontend:
+    build:
+      context: ../Gees_Frontend/Gees_Frontend
+      dockerfile: Dockerfile
+    container_name: my_vue_frontend
+    restart: always
+    ports:
+      - "80:5173"
+    depends_on:
+      - go-app
+
+volumes:
+  postgres_data:
